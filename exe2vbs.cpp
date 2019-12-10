@@ -7,6 +7,20 @@
 #include <string>
 using namespace std;
 
+void show_version(void)
+{
+    puts("exe2vbs by katahiromz version 0.1");
+}
+
+void show_help(void)
+{
+    puts("Usage: exe2vbs [options] your-file.exe [output-file.vbs]");
+    puts("Options:");
+    puts("--help        Show this help.");
+    puts("--version     Show version info.");
+    puts("--auto-start  Make VBS file auto-start.");
+}
+
 /***********************************************
 Sub WriteBinary(FileName, Buf)
 	Dim I, B, SZ, BS
@@ -80,21 +94,7 @@ static const char s_header[] =
 "Dim str\r\n"
 "str = \"\"\r\n";
 
-void show_help(void)
-{
-    puts("Usage: exe2vbs [options] your-file.exe [output-file.vbs]");
-    puts("Options:");
-    puts("--help        Show this help.");
-    puts("--version     Show version info.");
-    puts("--executable  Make VBS file executable");
-}
-
-void show_version(void)
-{
-    puts("exe2vbs by katahiromz version 0.0");
-}
-
-int just_do_it(const char *input, const char *output, bool executable)
+int just_do_it(const char *input, const char *output, bool auto_start)
 {
     FILE *inf = fopen(input, "rb");
     if (!inf)
@@ -141,7 +141,7 @@ int just_do_it(const char *input, const char *output, bool executable)
     fprintf(outf, "ReDim Data(Len(str) \\ 2 + 1)\r\n");
     fprintf(outf, "ArrayFromHex Data, str\r\n");
     fprintf(outf, "WriteBinary \"%s\", Data\r\n", filename);
-    if (executable)
+    if (auto_start)
     {
         fprintf(outf, "Dim wsh\r\n");
         fprintf(outf, "Set wsh = WScript.CreateObject(\"WScript.Shell\")\r\n");
@@ -163,7 +163,7 @@ int main(int argc, char **argv)
     }
 
     std::string arg, file1, file2;
-    bool executable = false;
+    bool auto_start = false;
     for (int i = 1; i < argc; ++i)
     {
         arg = argv[i];
@@ -177,9 +177,9 @@ int main(int argc, char **argv)
             show_version();
             return EXIT_SUCCESS;
         }
-        if (arg == "--executable")
+        if (arg == "--auto-start")
         {
-            executable = true;
+            auto_start = true;
             continue;
         }
         if (file1.empty())
@@ -204,5 +204,5 @@ int main(int argc, char **argv)
         file2 += ".vbs";
     }
 
-    return just_do_it(file1.c_str(), file2.c_str(), executable);
+    return just_do_it(file1.c_str(), file2.c_str(), auto_start);
 }
