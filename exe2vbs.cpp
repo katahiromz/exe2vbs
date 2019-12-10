@@ -12,7 +12,7 @@ using namespace std;
 
 void show_version(void)
 {
-    puts("exe2vbs by katahiromz version 0.8");
+    puts("exe2vbs by katahiromz version 0.9");
 }
 
 void show_help(void)
@@ -22,6 +22,33 @@ void show_help(void)
     puts("--help        Show this help.");
     puts("--version     Show version info.");
     puts("--auto-start  Make VBS file auto-start.");
+}
+
+const char *get_filename(const char *input)
+{
+    const char *ret;
+    const char *pch1 = strrchr(input, '\\');
+    const char *pch2 = strrchr(input, '\\');
+    if (pch1 && pch2)
+    {
+        if (pch1 < pch2)
+            ret = pch2 + 1;
+        else
+            ret = pch1 + 1;
+    }
+    else if (pch1)
+    {
+        ret = pch1 + 1;
+    }
+    else if (pch2)
+    {
+        ret = pch2 + 1;
+    }
+    else
+    {
+        ret = input;
+    }
+    return ret;
 }
 
 int just_do_it(const char *input, const char *output, bool auto_start)
@@ -76,23 +103,7 @@ int just_do_it(const char *input, const char *output, bool auto_start)
 
 #undef WIDTH
 
-    const char *filename = strrchr(input, '\\');
-    if (filename == NULL)
-    {
-        filename = strrchr(input, '/');
-        if (filename == NULL)
-        {
-            filename = input;
-        }
-        else
-        {
-            ++filename;
-        }
-    }
-    else
-    {
-        ++filename;
-    }
+    const char *filename = get_filename(input);
 
     fprintf(outf,
 "Dim dom, elem, bin, stream\r\n"
