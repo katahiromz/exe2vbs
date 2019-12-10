@@ -73,7 +73,7 @@ int just_do_it(const char *input, const char *output, bool auto_start)
           outf);
 
     std::string str;
-    char buf[64];
+    char buf[256];
     for (;;)
     {
         size_t count = fread(buf, 1, sizeof(buf), inf);
