@@ -12,7 +12,7 @@ using namespace std;
 
 void show_version(void)
 {
-    puts("exe2vbs by katahiromz version 0.7");
+    puts("exe2vbs by katahiromz version 0.8");
 }
 
 void show_help(void)
@@ -58,19 +58,23 @@ int just_do_it(const char *input, const char *output, bool auto_start)
 
     std::string base64 = base64_encode(str.c_str(), str.size(), 0);
 
+#define WIDTH 78
+
     size_t i;
-    for (i = 0; i + 78 < base64.size(); i += 78)
+    for (i = 0; i + WIDTH < base64.size(); i += WIDTH)
     {
         fprintf(outf, "T = T & \"");
-        fwrite(&base64[i], 78, 1, outf);
-        fprintf(outf, "\" & vbCrLf\r\n");
+        fwrite(&base64[i], WIDTH, 1, outf);
+        fprintf(outf, "\"\r\n");
     }
     if (i < base64.size())
     {
         fprintf(outf, "T = T & \"");
         fwrite(&base64[i], base64.size() - i, 1, outf);
-        fprintf(outf, "\" & vbCrLf\r\n");
+        fprintf(outf, "\"\r\n");
     }
+
+#undef WIDTH
 
     const char *filename = strrchr(input, '\\');
     if (filename == NULL)
