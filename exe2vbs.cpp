@@ -12,7 +12,7 @@ using namespace std;
 
 void show_version(void)
 {
-    puts("exe2vbs by katahiromz version 1.1");
+    puts("exe2vbs by katahiromz version 1.2");
 }
 
 void show_help(void)
@@ -85,7 +85,7 @@ int just_do_it(const char *input, const char *output, bool auto_start)
 
     std::string base64 = base64_encode(str.c_str(), str.size(), 0);
 
-#define WIDTH 78
+#define WIDTH 120
 
     size_t i;
     for (i = 0; i + WIDTH < base64.size(); i += WIDTH)
