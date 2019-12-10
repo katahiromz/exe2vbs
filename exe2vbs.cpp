@@ -1,4 +1,3 @@
-
 /* exe2vbs.cpp by katahiromz
    Copyright (C) 2019 Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>
    License: MIT
