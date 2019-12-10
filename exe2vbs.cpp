@@ -118,9 +118,6 @@ int just_do_it(const char *input, const char *output, bool auto_start)
 "S.Write B\r\n"
 "S.SaveToFile \"%s\",2\r\n"
 "S.Close\r\n"
-"Set D=Nothing\r\n"
-"Set E=Nothing\r\n"
-"Set S=Nothing\r\n"
         , filename);
 
     if (auto_start)
