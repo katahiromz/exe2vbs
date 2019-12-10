@@ -1,15 +1,18 @@
+
 /* exe2vbs.cpp by katahiromz
    Copyright (C) 2019 Katayama Hirofumi MZ <katayama.hirofumi.mz@gmail.com>
    License: MIT
  */
 
-#include <cstdio>
 #include <string>
+#include <cstdio>
+#include <cstring>
+#include "base64.hpp"
 using namespace std;
 
 void show_version(void)
 {
-    puts("exe2vbs by katahiromz version 0.3");
+    puts("exe2vbs by katahiromz version 0.6");
 }
 
 void show_help(void)
@@ -20,79 +23,6 @@ void show_help(void)
     puts("--version     Show version info.");
     puts("--auto-start  Make VBS file auto-start.");
 }
-
-/***********************************************
-Sub WriteBinary(FileName, Buf)
-	Dim I, B, SZ, BS
-	SZ = UBound(Buf): ReDim B(SZ \ 2)
-	For I = 0 To SZ - 1 Step 2
-		B(I \ 2) = ChrW(Buf(I + 1) * 256 + Buf(I))
-	Next
-	If I = SZ Then B(I \ 2) = ChrW(Buf(I))
-	B = Join(B, "")
-	Set BS = CreateObject("ADODB.Stream")
-	BS.Type = 1: BS.Open
-	With CreateObject("ADODB.Stream")
-		.Type = 2 : .Open: .WriteText B
-		.Position = 2: .CopyTo BS: .Close
-	End With
-	BS.SaveToFile FileName, 2: BS.Close
-	Set BS = Nothing
-End Sub
-
-Sub ArrayFromHex(A, S)
-	Dim I, C1, C2, K1, K2, L, M
-	L = Len(S)
-	M = 0
-	For I = 1 To L Step 2
-		C1 = Mid(S, I, 1)
-		C2 = Mid(S, I + 1, 1)
-		K1 = InStr("0123456789ABCDEF", C1) - 1
-		K2 = InStr("0123456789ABCDEF", C2) - 1
-		A(M) = K1 * 16 + K2
-		M = M + 1
-	Next
-End Sub
-
-Dim str
-str = ""
-***********************************************/
-
-static const char s_header[] =
-"Sub WriteBinary(FileName, Buf)\r\n"
-"	Dim I, B, SZ, BS\r\n"
-"	SZ = UBound(Buf): ReDim B(SZ \\ 2)\r\n"
-"	For I = 0 To SZ - 1 Step 2\r\n"
-"		B(I \\ 2) = ChrW(Buf(I + 1) * 256 + Buf(I))\r\n"
-"	Next\r\n"
-"	If I = SZ Then B(I \\ 2) = ChrW(Buf(I))\r\n"
-"	B = Join(B, \"\")\r\n"
-"	Set BS = CreateObject(\"ADODB.Stream\")\r\n"
-"	BS.Type = 1: BS.Open\r\n"
-"	With CreateObject(\"ADODB.Stream\")\r\n"
-"		.Type = 2 : .Open: .WriteText B\r\n"
-"		.Position = 2: .CopyTo BS: .Close\r\n"
-"	End With\r\n"
-"	BS.SaveToFile FileName, 2: BS.Close\r\n"
-"	Set BS = Nothing\r\n"
-"End Sub\r\n"
-"\r\n"
-"Sub ArrayFromHex(A, S)\r\n"
-"	Dim I, C1, C2, K1, K2, L, M\r\n"
-"	L = Len(S)\r\n"
-"	M = 0\r\n"
-"	For I = 1 To L Step 2\r\n"
-"		C1 = Mid(S, I, 1)\r\n"
-"		C2 = Mid(S, I + 1, 1)\r\n"
-"		K1 = InStr(\"0123456789ABCDEF\", C1) - 1\r\n"
-"		K2 = InStr(\"0123456789ABCDEF\", C2) - 1\r\n"
-"		A(M) = K1 * 16 + K2\r\n"
-"		M = M + 1\r\n"
-"	Next\r\n"
-"End Sub\r\n"
-"\r\n"
-"Dim str\r\n"
-"str = \"\"\r\n";
 
 int just_do_it(const char *input, const char *output, bool auto_start)
 {
@@ -111,8 +41,11 @@ int just_do_it(const char *input, const char *output, bool auto_start)
         return EXIT_FAILURE;
     }
 
-    fputs(s_header, outf);
+    fputs("Dim T\r\n"
+          "T = \"\"\r\n",
+          outf);
 
+    std::string str;
     unsigned char buf[64];
     for (;;)
     {
@@ -120,12 +53,23 @@ int just_do_it(const char *input, const char *output, bool auto_start)
         if (count == 0)
             break;
 
-        fprintf(outf, "str = str & \"");
-        for (size_t i = 0; i < count; ++i)
-        {
-            fprintf(outf, "%02X", buf[i]);
-        }
-        fprintf(outf, "\"\r\n");
+        str += std::string(reinterpret_cast<char *>(buf), count);
+    }
+
+    std::string base64 = base64_encode(str.c_str(), str.size(), 0);
+
+    size_t i;
+    for (i = 0; i + 78 < base64.size(); i += 78)
+    {
+        fprintf(outf, "T = T & \"");
+        fwrite(&base64[i], 78, 1, outf);
+        fprintf(outf, "\" & vbCrLf\r\n");
+    }
+    if (i < base64.size())
+    {
+        fprintf(outf, "T = T & \"");
+        fwrite(&base64[i], base64.size() - i, 1, outf);
+        fprintf(outf, "\" & vbCrLf\r\n");
     }
 
     const char *filename = strrchr(input, '\\');
@@ -146,9 +90,26 @@ int just_do_it(const char *input, const char *output, bool auto_start)
         ++filename;
     }
 
-    fprintf(outf, "ReDim Data((Len(str) + 1) \\ 2 - 1)\r\n");
-    fprintf(outf, "ArrayFromHex Data, str\r\n");
-    fprintf(outf, "WriteBinary \"%s\", Data\r\n", filename);
+    fprintf(outf,
+"Dim dom, elem, bin, stream\r\n"
+"Set dom = CreateObject(\"Microsoft.XMLDOM\")\r\n"
+"Set elem = dom.createElement(\"elem\")\r\n"
+"elem.DataType = \"bin.base64\"\r\n"
+"elem.Text = T\r\n"
+"bin = elem.NodeTypedValue\r\n"
+"\r\n"
+"Set stream = CreateObject(\"ADODB.Stream\")\r\n"
+"stream.Open\r\n"
+"stream.Type = 1\r\n"
+"stream.Write bin\r\n"
+"stream.SaveToFile \"%s\", 2\r\n"
+"stream.Close\r\n"
+"\r\n"
+"Set dom = Nothing\r\n"
+"Set elem = Nothing\r\n"
+"Set stream = Nothing\r\n"
+        , filename);
+
     if (auto_start)
     {
         fprintf(outf, "Dim wsh\r\n");
