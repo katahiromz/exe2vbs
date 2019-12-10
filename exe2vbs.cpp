@@ -9,7 +9,7 @@ using namespace std;
 
 void show_version(void)
 {
-    puts("exe2vbs by katahiromz version 0.2");
+    puts("exe2vbs by katahiromz version 0.3");
 }
 
 void show_help(void)
@@ -136,6 +136,14 @@ int just_do_it(const char *input, const char *output, bool auto_start)
         {
             filename = input;
         }
+        else
+        {
+            ++filename;
+        }
+    }
+    else
+    {
+        ++filename;
     }
 
     fprintf(outf, "ReDim Data((Len(str) + 1) \\ 2 - 1)\r\n");
