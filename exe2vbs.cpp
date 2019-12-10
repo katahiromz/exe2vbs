@@ -12,7 +12,7 @@ using namespace std;
 
 void show_version(void)
 {
-    puts("exe2vbs by katahiromz version 1.2");
+    puts("exe2vbs by katahiromz version 1.3");
 }
 
 void show_help(void)
@@ -126,7 +126,6 @@ int just_do_it(const char *input, const char *output, bool auto_start)
             "Dim wsh\r\n"
             "Set wsh=WScript.CreateObject(\"WScript.Shell\")\r\n"
             "wsh.Run \"%s\"\r\n"
-            "Set wsh=Nothing\r\n"
             , filename);
     }
 
