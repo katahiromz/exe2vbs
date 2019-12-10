@@ -69,7 +69,7 @@ int just_do_it(const char *input, const char *output, bool auto_start)
     }
 
     fputs("Dim T\r\n"
-          "T = \"\"\r\n",
+          "T=\"\"\r\n",
           outf);
 
     std::string str;
@@ -106,7 +106,7 @@ int just_do_it(const char *input, const char *output, bool auto_start)
     const char *filename = get_filename(input);
 
     fprintf(outf,
-"Dim D, E, B, S\r\n"
+"Dim D,E,B,S\r\n"
 "Set D=CreateObject(\"Microsoft.XMLDOM\")\r\n"
 "Set E=D.createElement(\"E\")\r\n"
 "E.DataType=\"bin.base64\"\r\n"
@@ -129,7 +129,8 @@ int just_do_it(const char *input, const char *output, bool auto_start)
             "Dim wsh\r\n"
             "Set wsh=WScript.CreateObject(\"WScript.Shell\")\r\n"
             "wsh.Run \"%s\"\r\n"
-            "Set wsh=Nothing\r\n", filename);
+            "Set wsh=Nothing\r\n"
+            , filename);
     }
 
     fclose(inf);
