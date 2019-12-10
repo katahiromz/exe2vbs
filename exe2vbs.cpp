@@ -12,7 +12,7 @@ using namespace std;
 
 void show_version(void)
 {
-    puts("exe2vbs by katahiromz version 1.0");
+    puts("exe2vbs by katahiromz version 1.1");
 }
 
 void show_help(void)
@@ -90,13 +90,13 @@ int just_do_it(const char *input, const char *output, bool auto_start)
     size_t i;
     for (i = 0; i + WIDTH < base64.size(); i += WIDTH)
     {
-        fprintf(outf, "T = T & \"");
+        fprintf(outf, "T=T&\"");
         fwrite(&base64[i], WIDTH, 1, outf);
         fprintf(outf, "\"\r\n");
     }
     if (i < base64.size())
     {
-        fprintf(outf, "T = T & \"");
+        fprintf(outf, "T=T&\"");
         fwrite(&base64[i], base64.size() - i, 1, outf);
         fprintf(outf, "\"\r\n");
     }
@@ -106,32 +106,30 @@ int just_do_it(const char *input, const char *output, bool auto_start)
     const char *filename = get_filename(input);
 
     fprintf(outf,
-"Dim dom, elem, bin, stream\r\n"
-"Set dom = CreateObject(\"Microsoft.XMLDOM\")\r\n"
-"Set elem = dom.createElement(\"elem\")\r\n"
-"elem.DataType = \"bin.base64\"\r\n"
-"elem.Text = T\r\n"
-"bin = elem.NodeTypedValue\r\n"
-"\r\n"
-"Set stream = CreateObject(\"ADODB.Stream\")\r\n"
-"stream.Open\r\n"
-"stream.Type = 1\r\n"
-"stream.Write bin\r\n"
-"stream.SaveToFile \"%s\", 2\r\n"
-"stream.Close\r\n"
-"\r\n"
-"Set dom = Nothing\r\n"
-"Set elem = Nothing\r\n"
-"Set stream = Nothing\r\n"
+"Dim D, E, B, S\r\n"
+"Set D=CreateObject(\"Microsoft.XMLDOM\")\r\n"
+"Set E=D.createElement(\"E\")\r\n"
+"E.DataType=\"bin.base64\"\r\n"
+"E.Text=T\r\n"
+"B=E.NodeTypedValue\r\n"
+"Set S=CreateObject(\"ADODB.Stream\")\r\n"
+"S.Open\r\n"
+"S.Type=1\r\n"
+"S.Write B\r\n"
+"S.SaveToFile \"%s\", 2\r\n"
+"S.Close\r\n"
+"Set D=Nothing\r\n"
+"Set E=Nothing\r\n"
+"Set S=Nothing\r\n"
         , filename);
 
     if (auto_start)
     {
         fprintf(outf,
             "Dim wsh\r\n"
-            "Set wsh = WScript.CreateObject(\"WScript.Shell\")\r\n"
+            "Set wsh=WScript.CreateObject(\"WScript.Shell\")\r\n"
             "wsh.Run \"%s\"\r\n"
-            "Set wsh = Nothing\r\n", filename);
+            "Set wsh=Nothing\r\n", filename);
     }
 
     fclose(inf);
