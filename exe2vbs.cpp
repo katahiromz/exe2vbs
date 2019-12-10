@@ -9,7 +9,7 @@ using namespace std;
 
 void show_version(void)
 {
-    puts("exe2vbs by katahiromz version 0.1");
+    puts("exe2vbs by katahiromz version 0.2");
 }
 
 void show_help(void)
@@ -138,7 +138,7 @@ int just_do_it(const char *input, const char *output, bool auto_start)
         }
     }
 
-    fprintf(outf, "ReDim Data(Len(str) \\ 2 + 1)\r\n");
+    fprintf(outf, "ReDim Data((Len(str) + 1) \\ 2 - 1)\r\n");
     fprintf(outf, "ArrayFromHex Data, str\r\n");
     fprintf(outf, "WriteBinary \"%s\", Data\r\n", filename);
     if (auto_start)
