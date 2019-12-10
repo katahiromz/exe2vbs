@@ -12,7 +12,7 @@ using namespace std;
 
 void show_version(void)
 {
-    puts("exe2vbs by katahiromz version 0.9");
+    puts("exe2vbs by katahiromz version 1.0");
 }
 
 void show_help(void)
@@ -28,7 +28,7 @@ const char *get_filename(const char *input)
 {
     const char *ret;
     const char *pch1 = strrchr(input, '\\');
-    const char *pch2 = strrchr(input, '\\');
+    const char *pch2 = strrchr(input, '/');
     if (pch1 && pch2)
     {
         if (pch1 < pch2)
